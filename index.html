@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Functio | Estudi de Funcions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #334155;
+            --coin-color: #f59e0b;
+            --streak-color: #ef4444;
+            --xp-color: #8b5cf6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s, color 0.3s, box-shadow 0.3s;
+            overflow-x: hidden;
+        }
+
+        /* EFECTE NEÓ GLOBAL */
+        body.neon-active .panel, body.neon-active .dashboard-card, body.neon-active .skin-card {
+            box-shadow: 0 0 15px var(--accent);
+            border-color: var(--accent);
+        }
+        body.neon-active input[type="text"] {
+            box-shadow: inset 0 0 8px var(--accent);
+            border-color: var(--accent);
+        }
+
+        header {
+            background-color: var(--panel-bg);
+            padding: 0.8rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            letter-spacing: -0.02em;
+        }
+
+        .logo i { color: var(--accent); }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .coin-badge {
+            background-color: rgba(245, 158, 11, 0.15);
+            border: 1px solid var(--coin-color);
+            color: var(--coin-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        
+        .streak-badge {
+            background-color: rgba(239, 68, 68, 0.15);
+            border: 1px solid var(--streak-color);
+            color: var(--streak-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .xp-badge {
+            background-color: rgba(139, 92, 246, 0.15);
+            border: 1px solid var(--xp-color);
+            color: var(--xp-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover { background-color: var(--border); }
+
+        main {
+            flex-grow: 1;
+            padding: 1.5rem 2rem;
+            position: relative;
+        }
+
+        /* VISTES */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* VISTA MENÚ PRINCIPAL */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .welcome-card {
+            grid-column: 1 / -1;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-card h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+        .welcome-card p { color: var(--text-muted); }
+        
+        .welcome-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .dashboard-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .dashboard-card h2 {
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.75rem;
+        }
+
+        .history-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .history-score {
+            font-weight: 700;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
+        .score-high { color: var(--success); background: rgba(16, 185, 129, 0.1); }
+        .score-mid { color: var(--warning); background: rgba(245, 158, 11, 0.1); }
+        .score-low { color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+        /* VISTA BOTIGA */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-bottom: 2rem;
+        }
+        
+        .shop-category-title {
+            max-width: 1200px;
+            margin: 0 auto 1rem auto;
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+
+        .skin-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .skin-preview {
+            height: 100px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .skin-swatch {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .custom-pickers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .picker-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.75rem;
+            gap: 0.2rem;
+        }
+
+        .picker-group input {
+            padding: 0;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        /* VISTA ENTRENADOR */
+        .practice-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .function-display {
+            background-color: var(--bg-color);
+            padding: 1.25rem;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1.4rem;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            font-weight: 600;
+        }
+
+        .math-frac {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            vertical-align: middle;
+            margin: 0 0.3rem;
+        }
+
+        .math-num {
+            border-bottom: 2px solid var(--text-main);
+            padding: 0 0.4rem;
+            display: block;
+        }
+
+        .math-den {
+            padding: 0 0.4rem;
+            display: block;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 0.65rem 2.2rem 0.65rem 0.9rem;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        input::placeholder { color: #475569; }
+
+        .math-sign-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: var(--bg-color);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        .math-sign-row input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            padding: 0.25rem;
+            width: auto;
+        }
+
+        .math-sign-row input:focus { box-shadow: none; }
+
+        .limits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .limit-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background-color: var(--bg-color);
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+
+        .limit-item label {
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            white-space: nowrap;
+        }
+
+        .limit-item input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            padding: 0.2rem 1.8rem 0.2rem 0.2rem;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+        .btn-outline:hover { background-color: var(--border); }
+        .btn-hint {
+            background-color: var(--warning);
+            color: #fff;
+        }
+        .btn-hint:hover { background-color: #d97706; }
+
+        .canvas-container {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .results-overlay {
+            display: none;
+            background-color: var(--bg-color);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 1rem;
+        }
+
+        .score-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .reward-display {
+            text-align: center;
+            font-weight: 700;
+            color: var(--coin-color);
+            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+        }
+
+        .real-answer {
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 0.2rem;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .status-icon {
+            position: absolute;
+            right: 10px;
+            font-size: 1rem;
+            display: none;
+        }
+
+        #minigame-timer {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            color: var(--danger);
+            margin-bottom: 0.5rem;
+        }
+
+        .record-badge-mg {
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .practice-grid, .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="switchView('menu')">
+            <i class="fa-solid fa-square-root-variable"></i> Functio
+        </div>
+
+        <div class="header-controls">
+            <div class="xp-badge" title="Punts d'Experiència">
+                <i class="fa-solid fa-bolt"></i> <span id="xpCount">0</span> XP
+            </div>
+
+            <div class="streak-badge" title="Ratxa de Dies">
+                <i class="fa-solid fa-fire"></i> <span id="streakCount">0</span>
+            </div>
+
+            <div class="coin-badge">
+                <i class="fa-solid fa-coins"></i> <span id="coinCount">0</span>
+            </div>
+            
+            <button class="nav-btn" onclick="toggleThemeMode()" title="Canviar Mode Clar/Fosc">
+                <i id="themeIcon" class="fa-solid fa-moon"></i>
+            </button>
+
+            <button class="nav-btn" onclick="switchView('menu')">
+                <i class="fa-solid fa-house"></i> Menú
+            </button>
+            <button class="nav-btn" onclick="switchView('shop')">
+                <i class="fa-solid fa-store"></i> Botiga
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- VISTA 1: MENÚ PRINCIPAL (DASHBOARD) -->
+        <div id="view-menu" class="view active">
+            <div class="dashboard-grid">
+                <div class="welcome-card">
+                    <div>
+                        <h1>Hola de nou! 👋</h1>
+                        <p>Resol funcions i entrena la teva ment amb experiència.</p>
+                    </div>
+                    <div class="welcome-actions">
+                        <button class="btn" style="padding: 1rem 2rem; font-size: 1.1rem;" onclick="switchView('practice')">
+                            <i class="fa-solid fa-play"></i> Practicar Ara
+                        </button>
+                        <button id="btnPlayMinigame" class="btn btn-outline" style="display: none; padding: 1rem 2rem; font-size: 1.1rem; border-color: var(--accent); color: var(--accent);" onclick="startMinigame()">
+                            <i class="fa-solid fa-stopwatch"></i> Minijoc
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-card">
+                    <h2><i class="fa-solid fa-chart-line"></i> Estadístiques</h2>
+                    <div style="display: flex; gap: 1rem; justify-content: space-around; padding: 1rem 0;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 800;" id="statTotalSolved">0</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Completades</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--coin-color);" id="statTotalCoins">0</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Monedes Totals</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2rem; font-weight: 800; color: var(--warning);" id="statMinigameRecord">0</div>
+                            <div style="font-size: 0.8rem; color: var(--text-muted);">Rècord Minijoc</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-card" style="grid-column: 1 / -1;">
+                    <h2><i class="fa-solid fa-clock-rotate-left"></i> Historial Recent</h2>
+                    <div class="history-list" id="historyList">
+                        <div style="text-align: center; color: var(--text-muted); padding: 1rem;">Cap operació recent.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 2: BOTIGA DE TEMES I MÉS ESTILS -->
+        <div id="view-shop" class="view">
+            <h1 style="margin-bottom: 0.5rem; text-align: center;">Botiga</h1>
+            <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Desbloqueja aparences, utilitats i més.</p>
+
+            <h2 class="shop-category-title"><i class="fa-solid fa-palette"></i> Temes i Estils (Protecció Verde d'Eix i Signe)</h2>
+            <div class="shop-grid" id="shopGridSkins"></div>
+            
+            <h2 class="shop-category-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Personalització i Extres</h2>
+            <div class="shop-grid" id="shopGridExtras"></div>
+        </div>
+
+        <!-- VISTA 4: MINIJOC -->
+        <div id="view-minigame" class="view">
+            <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+                <div class="panel" style="text-align: center;">
+                    <h2><i class="fa-solid fa-stopwatch"></i> Cerca de Dominis a Contrarrellotge</h2>
+                    <p style="color: var(--text-muted); margin-bottom: 0.5rem;">Els dominis comencen fàcils i es tornen cada cop més difícils! Cada encert et suma temps extra.</p>
+                    
+                    <div class="record-badge-mg"><i class="fa-solid fa-trophy"></i> Rècord Actual: <span id="mgRecordVal">0</span> encerts</div>
+                    
+                    <div id="minigame-timer">60</div>
+                    <div id="mgLevelIndicator" style="font-size: 0.9rem; font-weight: 700; color: var(--accent); margin-bottom: 1rem; display: none;">Nivell 1 (Fàcil)</div>
+                    
+                    <div id="minigame-area" style="display: none;">
+                        <div class="function-display" id="mgFuncDisplay" style="margin-bottom: 1rem;"></div>
+                        <input type="text" id="mgDomainInput" placeholder="Ex: R - {-2, 2} o (-inf, 2)" style="font-size: 1.2rem; text-align: center; margin-bottom: 1rem;" onkeypress="if(event.key==='Enter') checkMinigameAnswer()">
+                        <p id="mgFeedback" style="font-weight: bold; margin-bottom: 1rem; min-height: 1.5rem;"></p>
+                    </div>
+
+                    <button id="btnStartMg" class="btn" style="margin: 0 auto;" onclick="initMinigameRun()">
+                        <i class="fa-solid fa-play"></i> Iniciar Minijoc
+                    </button>
+                    <button id="btnExitMg" class="btn btn-outline" style="margin: 1rem auto 0 auto;" onclick="switchView('menu')">
+                        Tornar al Menú
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- VISTA 3: ENTRENADOR DE FUNCIONS -->
+        <div id="view-practice" class="view">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <button class="btn btn-outline" onclick="generateNewFunction()">
+                    <i class="fa-solid fa-arrows-rotate"></i> Nova Funció
+                </button>
+                
+                <button class="btn btn-hint" onclick="buyHint()" title="Comprar Pista per 25 monedes">
+                    <i class="fa-solid fa-lightbulb"></i> Pista (25🪙)
+                </button>
+            </div>
+
+            <div class="practice-grid">
+                <div class="panel">
+                    <div class="function-display" id="funcDisplay"></div>
+
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-arrows-left-right"></i> Domini</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="in-domain" placeholder="Ex: R - {-2, 2} o (-inf, -2)U(-2, 2)U(2, +inf)" oninput="updateGraph()">
+                            <i id="icon-domain" class="fa-solid status-icon"></i>
+                        </div>
+                        <div class="real-answer" id="ans-domain"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-crosshairs"></i> Punt de tall amb l'eix Y</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="in-yint" placeholder="Ex: (0, -0.25) o 'No en té'" oninput="updateGraph()">
+                            <i id="icon-yint" class="fa-solid status-icon"></i>
+                        </div>
+                        <div class="real-answer" id="ans-yint"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-location-dot"></i> Punt(s) de tall amb l'eix X</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="in-xint" placeholder="Ex: (-2, 0), (2, 0) o 'No en té'" oninput="updateGraph()">
+                            <i id="icon-xint" class="fa-solid status-icon"></i>
+                        </div>
+                        <div class="real-answer" id="ans-xint"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-plus-minus"></i> Signe de la Funció</label>
+                        <div class="math-sign-row" id="wrap-sign">
+                            <span>f(x) &ge; 0 &nbsp;&hArr;&nbsp; x &in;</span>
+                            <input type="text" id="in-sign" placeholder="Ex: (-inf, -2) U (2, +inf)" oninput="updateGraph()">
+                            <i id="icon-sign" class="fa-solid status-icon"></i>
+                        </div>
+                        <div class="real-answer" id="ans-sign"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-infinity"></i> Límits de la funció</label>
+                        <div class="limits-grid" id="limitsContainer"></div>
+                        <div class="real-answer" id="ans-limits"></div>
+                    </div>
+
+                    <button class="btn" id="btnSubmit" onclick="evaluateAnswers()">
+                        <i class="fa-solid fa-circle-check"></i> Avaluar Resultats
+                    </button>
+
+                    <div class="results-overlay" id="resultsPanel">
+                        <div class="score-display" id="scoreText">0%</div>
+                        <div class="reward-display" id="rewardText">+0 🪙</div>
+                        <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;" onclick="drawRealFunction()">
+                            <i class="fa-solid fa-eye"></i> Dibuixar Funció Real
+                        </button>
+                        <button class="btn" style="width: 100%;" onclick="generateNewFunction()">
+                            <i class="fa-solid fa-forward"></i> Següent Funció
+                        </button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3 style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        <i class="fa-solid fa-compass-drafting"></i> Visualització en Temps Real
+                    </h3>
+                    <div class="canvas-container">
+                        <canvas id="graphCanvas"></canvas>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+                        El verd marca per on <b>no</b> pot passar la funció. Les línies grogues indiquen el comportament dels teus límits.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- ESTAT GLOBAL DE L'APLICACIÓ ---
+        let appState = {
+            coins: 0,
+            xp: 0,
+            history: [],
+            unlockedSkins: ['default'],
+            unlockedExtras: [],
+            activeSkin: 'default',
+            neonEnabled: false,
+            customTheme: { bg: '#0f172a', panel: '#1e293b', text: '#f8fafc', accent: '#3b82f6' },
+            isDark: true,
+            streak: 0,
+            lastDate: null,
+            minigameRecord: 0
+        };
+
+        let generatedPracticeHistory = new Set();
+        let generatedMinigameHistory = new Set();
+
+        function loadState() {
+            const saved = localStorage.getItem('functio_state');
+            if (saved) {
+                try {
+                    appState = Object.assign(appState, JSON.parse(saved));
+                } catch(e) {}
+            }
+            updateStreak();
+            updateUIStats();
+            renderHistory();
+            applyActiveSkin();
+            applyExtras();
+        }
+
+        function saveState() {
+            localStorage.setItem('functio_state', JSON.stringify(appState));
+            updateUIStats();
+            applyExtras();
+        }
+
+        function updateStreak() {
+            const today = new Date().toDateString();
+            if (appState.lastDate === today) {
+                document.getElementById('streakCount').innerText = appState.streak;
+                return;
+            }
+            
+            if (!appState.lastDate) {
+                appState.streak = 1;
+            } else {
+                const last = new Date(appState.lastDate);
+                const diffTime = Math.abs(new Date() - last);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+                if (diffDays === 1) {
+                    appState.streak++;
+                } else {
+                    appState.streak = 1;
+                }
+            }
+            appState.lastDate = today;
+            document.getElementById('streakCount').innerText = appState.streak;
+        }
+
+        function updateUIStats() {
+            document.getElementById('coinCount').innerText = appState.coins;
+            document.getElementById('xpCount').innerText = appState.xp;
+            document.getElementById('statTotalCoins').innerText = appState.coins;
+            document.getElementById('statTotalSolved').innerText = appState.history.length;
+            document.getElementById('statMinigameRecord').innerText = appState.minigameRecord || 0;
+            document.getElementById('mgRecordVal').innerText = appState.minigameRecord || 0;
+            
+            if (appState.unlockedExtras.includes('minigame')) {
+                document.getElementById('btnPlayMinigame').style.display = 'inline-flex';
+            }
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            if (appState.history.length === 0) {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 1rem;">Cap operació recent.</div>`;
+                return;
+            }
+            container.innerHTML = appState.history.slice(0, 10).map(item => {
+                let scoreClass = item.score >= 80 ? 'score-high' : (item.score >= 50 ? 'score-mid' : 'score-low');
+                return `
+                    <div class="history-item">
+                        <div>
+                            <div style="font-weight: 600;">${item.funcText}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">${item.date}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <span style="color: var(--xp-color); font-weight: 700;">+${item.xp || 40} XP</span>
+                            <span style="color: var(--coin-color); font-weight: 700;">+${item.coins} 🪙</span>
+                            <span class="history-score ${scoreClass}">${item.score}%</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById(`view-${viewName}`).classList.add('active');
+            if (viewName === 'practice') {
+                setTimeout(resizeCanvas, 100);
+            } else if (viewName === 'shop') {
+                renderShop();
+            } else if (viewName === 'minigame') {
+                document.getElementById('minigame-area').style.display = 'none';
+                document.getElementById('btnStartMg').style.display = 'block';
+                document.getElementById('mgLevelIndicator').style.display = 'none';
+                document.getElementById('minigame-timer').innerText = '60';
+                document.getElementById('mgRecordVal').innerText = appState.minigameRecord || 0;
+            }
+        }
+
+        // --- SISTEMA DE TEMES I BOTIGA ---
+        const SKINS = [
+            { id: 'default', name: 'Blau Original', price: 0, bg: '#0f172a', panel: '#1e293b', text: '#f8fafc', accent: '#3b82f6', cat: 'skin' },
+            { id: 'neon', name: 'Neó Ciberpunk', price: 150, bg: '#09090b', panel: '#18181b', text: '#f4f4f5', accent: '#a855f7', cat: 'skin' },
+            { id: 'emerald', name: 'Bosc d\'Esmeralda', price: 300, bg: '#064e3b', panel: '#047857', text: '#ecfdf5', accent: '#10b981', cat: 'skin' },
+            { id: 'sunset', name: 'Post de Sol Daurat', price: 500, bg: '#292524', panel: '#44403c', text: '#fafaf9', accent: '#f59e0b', cat: 'skin' },
+            { id: 'dracula', name: 'Dràcula Fosc', price: 400, bg: '#282a36', panel: '#44475a', text: '#f8f8f2', accent: '#ff79c6', cat: 'skin' },
+            { id: 'matrix', name: 'Matrix Hacker', price: 450, bg: '#0d1117', panel: '#161b22', text: '#3fb950', accent: '#2ea043', cat: 'skin' },
+            { id: 'pastel', name: 'Pastís Suau', price: 350, bg: '#faf4ed', panel: '#fffaf3', text: '#575279', accent: '#eb6f92', cat: 'skin' },
+            { id: 'cyber_gold', name: 'Ciber Or', price: 600, bg: '#12131c', panel: '#1d1e2c', text: '#f1f5f9', accent: '#eab308', cat: 'skin' },
+            { id: 'retro_arcade', name: 'Retro Arcade 80s', price: 650, bg: '#1a0933', panel: '#2a124d', text: '#f0e6ff', accent: '#f43f5e', cat: 'skin' },
+            { id: 'nordic', name: 'Gel Nòrdic', price: 550, bg: '#0f172a', panel: '#1e293b', text: '#e2e8f0', accent: '#38bdf8', cat: 'skin' },
+            
+            // NOUS ESTILS AFEGITS (PROTECCIÓ VERDA PROTEGIDA)
+            { id: 'ocean_deep', name: 'Oceà Profund', price: 500, bg: '#0284c7', panel: '#0369a1', text: '#f0f9ff', accent: '#38bdf8', cat: 'skin' },
+            { id: 'amethyst', name: 'Ametista Màgica', price: 550, bg: '#3b0764', panel: '#581c87', text: '#faf5ff', accent: '#c084fc', cat: 'skin' },
+            { id: 'midnight_rose', name: 'Rosa de Mitjanit', price: 600, bg: '#4c0519', panel: '#881337', text: '#fff1f2', accent: '#fb7185', cat: 'skin' },
+            { id: 'solar_flare', name: 'Llum Solar', price: 450, bg: '#451a03', panel: '#78350f', text: '#fffbeb', accent: '#fbbf24', cat: 'skin' },
+
+            { id: 'custom', name: 'Editor Personalitzat', price: 1000, isCustom: true, cat: 'skin' },
+            
+            // EXTRAS Y MINIJUEGOS
+            { id: 'minigame', name: 'Minijoc: Contrarrellotge', price: 600, cat: 'extra', desc: 'Desbloqueja un mode de joc de dominis ràpids per guanyar monedes extra.' },
+            { id: 'efecto_neon', name: 'Efecte Neó Global', price: 400, cat: 'extra', desc: 'Afegeix una brillantor espectacular a tota la interfície.' }
+        ];
+
+        function toggleThemeMode() {
+            appState.isDark = !appState.isDark;
+            const icon = document.getElementById('themeIcon');
+            if (!appState.isDark) {
+                icon.className = 'fa-solid fa-sun';
+                document.documentElement.style.setProperty('--bg-color', '#f8fafc');
+                document.documentElement.style.setProperty('--panel-bg', '#ffffff');
+                document.documentElement.style.setProperty('--text-main', '#0f172a');
+                document.documentElement.style.setProperty('--text-muted', '#64748b');
+                document.documentElement.style.setProperty('--border', '#cbd5e1');
+            } else {
+                icon.className = 'fa-solid fa-moon';
+                applyActiveSkin();
+            }
+            saveState();
+        }
+
+        function applyActiveSkin() {
+            if (!appState.isDark) return;
+
+            let skin = SKINS.find(s => s.id === appState.activeSkin) || SKINS[0];
+            if (skin.isCustom) {
+                document.documentElement.style.setProperty('--bg-color', appState.customTheme.bg);
+                document.documentElement.style.setProperty('--panel-bg', appState.customTheme.panel);
+                document.documentElement.style.setProperty('--text-main', appState.customTheme.text);
+                document.documentElement.style.setProperty('--accent', appState.customTheme.accent);
+            } else {
+                document.documentElement.style.setProperty('--bg-color', skin.bg);
+                document.documentElement.style.setProperty('--panel-bg', skin.panel);
+                document.documentElement.style.setProperty('--text-main', skin.text);
+                document.documentElement.style.setProperty('--accent', skin.accent);
+            }
+            document.documentElement.style.setProperty('--text-muted', '#94a3b8');
+            document.documentElement.style.setProperty('--border', '#334155');
+        }
+
+        function applyExtras() {
+            if (appState.unlockedExtras.includes('efecto_neon') && appState.neonEnabled) {
+                document.body.classList.add('neon-active');
+            } else {
+                document.body.classList.remove('neon-active');
+            }
+        }
+
+        function renderShop() {
+            document.getElementById('shopGridSkins').innerHTML = SKINS.filter(s => s.cat === 'skin').map(skin => {
+                let isUnlocked = appState.unlockedSkins.includes(skin.id);
+                let isActive = appState.activeSkin === skin.id;
+
+                if (skin.isCustom) {
+                    return `
+                        <div class="skin-card">
+                            <h3>${skin.name}</h3>
+                            <p style="font-size:0.8rem; color:var(--text-muted);">Personalitza els teus colors.</p>
+                            ${isUnlocked ? `
+                                <div class="custom-pickers">
+                                    <div class="picker-group">
+                                        <label>Fons</label>
+                                        <input type="color" id="picker-bg" value="${appState.customTheme.bg}" onchange="updateCustomColors()">
+                                    </div>
+                                    <div class="picker-group">
+                                        <label>Panells</label>
+                                        <input type="color" id="picker-panel" value="${appState.customTheme.panel}" onchange="updateCustomColors()">
+                                    </div>
+                                    <div class="picker-group">
+                                        <label>Text</label>
+                                        <input type="color" id="picker-text" value="${appState.customTheme.text}" onchange="updateCustomColors()">
+                                    </div>
+                                    <div class="picker-group">
+                                        <label>Accent</label>
+                                        <input type="color" id="picker-accent" value="${appState.customTheme.accent}" onchange="updateCustomColors()">
+                                    </div>
+                                </div>
+                            ` : ''}
+                            <button class="btn ${isActive ? 'btn-outline' : ''}" onclick="buyOrSelectSkin('${skin.id}')">
+                                ${isActive ? 'Equipat' : (isUnlocked ? 'Equipar' : `Desbloquejar (${skin.price} 🪙)`)}
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="skin-card">
+                        <h3>${skin.name}</h3>
+                        <div class="skin-preview" style="background:${skin.bg}">
+                            <div class="skin-swatch" style="background:${skin.panel}"></div>
+                            <div class="skin-swatch" style="background:${skin.accent}"></div>
+                        </div>
+                        <button class="btn ${isActive ? 'btn-outline' : ''}" onclick="buyOrSelectSkin('${skin.id}')">
+                            ${isActive ? 'Equipat' : (isUnlocked ? 'Equipar' : `Comprar (${skin.price} 🪙)`)}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('shopGridExtras').innerHTML = SKINS.filter(s => s.cat === 'extra').map(extra => {
+                let isUnlocked = appState.unlockedExtras.includes(extra.id);
+                let btnAction = '';
+                let btnText = '';
+                
+                if (extra.id === 'efecto_neon') {
+                    if (!isUnlocked) {
+                        btnText = `Desbloquejar (${extra.price} 🪙)`;
+                        btnAction = `buyExtra('${extra.id}', ${extra.price})`;
+                    } else {
+                        btnText = appState.neonEnabled ? 'Desactivar Neó' : 'Activar Neó';
+                        btnAction = `toggleNeon()`;
+                    }
+                } else {
+                    if (!isUnlocked) {
+                        btnText = `Desbloquejar (${extra.price} 🪙)`;
+                        btnAction = `buyExtra('${extra.id}', ${extra.price})`;
+                    } else {
+                        btnText = 'Desbloquejat!';
+                        btnAction = ``;
+                    }
+                }
+
+                return `
+                    <div class="skin-card">
+                        <h3>${extra.name}</h3>
+                        <p style="font-size:0.8rem; color:var(--text-muted);">${extra.desc}</p>
+                        <button class="btn ${isUnlocked ? 'btn-outline' : ''}" onclick="${btnAction}" ${isUnlocked && extra.id!=='efecto_neon' ? 'disabled' : ''}>
+                            ${btnText}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function buyOrSelectSkin(skinId) {
+            let skin = SKINS.find(s => s.id === skinId);
+            if (appState.unlockedSkins.includes(skinId)) {
+                appState.activeSkin = skinId;
+                applyActiveSkin();
+                saveState();
+                renderShop();
+            } else {
+                if (appState.coins >= skin.price) {
+                    appState.coins -= skin.price;
+                    appState.unlockedSkins.push(skinId);
+                    appState.activeSkin = skinId;
+                    applyActiveSkin();
+                    saveState();
+                    renderShop();
+                } else {
+                    alert('No tens suficients monedes!');
+                }
+            }
+        }
+
+        function buyExtra(extraId, price) {
+            if (appState.coins >= price) {
+                appState.coins -= price;
+                appState.unlockedExtras.push(extraId);
+                saveState();
+                renderShop();
+            } else {
+                alert('No tens suficients monedes!');
+            }
+        }
+        
+        function toggleNeon() {
+            appState.neonEnabled = !appState.neonEnabled;
+            saveState();
+            renderShop();
+        }
+
+        function updateCustomColors() {
+            appState.customTheme.bg = document.getElementById('picker-bg').value;
+            appState.customTheme.panel = document.getElementById('picker-panel').value;
+            appState.customTheme.text = document.getElementById('picker-text').value;
+            appState.customTheme.accent = document.getElementById('picker-accent').value;
+            appState.activeSkin = 'custom';
+            applyActiveSkin();
+            saveState();
+        }
+
+        // PISTES DE QUALSEVOL CAMP
+        function buyHint() {
+            if (appState.coins >= 25) {
+                appState.coins -= 25;
+                saveState();
+
+                const possibleTargets = ['in-domain', 'in-yint', 'in-xint', 'in-sign', 'limits'];
+                const selectedTarget = possibleTargets[Math.floor(Math.random() * possibleTargets.length)];
+
+                let hintText = "";
+                let fieldName = "";
+
+                if (selectedTarget === 'in-domain') {
+                    fieldName = "Domini";
+                    hintText = `R - {${currentFunc.domainExclusions.join(', ')}}`;
+                    document.getElementById('in-domain').value = hintText;
+                } else if (selectedTarget === 'in-yint') {
+                    fieldName = "Tall Eix Y";
+                    hintText = currentFunc.yInt === null ? "No en té" : `(0, ${parseFloat(currentFunc.yInt.toFixed(2))})`;
+                    document.getElementById('in-yint').value = hintText;
+                } else if (selectedTarget === 'in-xint') {
+                    fieldName = "Tall Eix X";
+                    hintText = currentFunc.xInts.length === 0 ? "No en té" : currentFunc.xInts.map(x=>`(${parseFloat(x.toFixed(2))}, 0)`).join(', ');
+                    document.getElementById('in-xint').value = hintText;
+                } else if (selectedTarget === 'in-sign') {
+                    fieldName = "Signe";
+                    hintText = currentFunc.positiveIntervals.length > 0 ? "Revisa on f(x) > 0" : "Sempre és negativa!";
+                    document.getElementById('in-sign').value = hintText;
+                } else {
+                    fieldName = "Límits";
+                    let randLimIdx = Math.floor(Math.random() * currentFunc.limits.length);
+                    let limObj = currentFunc.limits[randLimIdx];
+                    hintText = `El límit (${limObj.label}) és ${limObj.expected}`;
+                    let inputEl = document.getElementById(`lim-${randLimIdx}`);
+                    if (inputEl) inputEl.value = limObj.expected;
+                }
+
+                updateGraph();
+                alert(`Pista de ${fieldName}: ${hintText}`);
+
+            } else {
+                alert('Necessites 25 monedes per una pista!');
+            }
+        }
+
+        // --- SISTEMA MINIJOC CONTRARRELLOTGE ---
+        let mgTimer = null;
+        let mgTimeLeft = 0;
+        let mgScore = 0;
+        let mgLevel = 1;
+        let mgCurrentExclusions = [];
+
+        function startMinigame() {
+            switchView('minigame');
+        }
+
+        function initMinigameRun() {
+            document.getElementById('btnStartMg').style.display = 'none';
+            document.getElementById('minigame-area').style.display = 'block';
+            document.getElementById('mgLevelIndicator').style.display = 'block';
+            document.getElementById('mgDomainInput').value = '';
+            document.getElementById('mgFeedback').innerText = '';
+            
+            mgTimeLeft = 60;
+            mgScore = 0;
+            mgLevel = 1;
+            
+            updateMinigameUI();
+            generateMinigameFunc();
+            
+            if (mgTimer) clearInterval(mgTimer);
+            mgTimer = setInterval(() => {
+                mgTimeLeft--;
+                document.getElementById('minigame-timer').innerText = mgTimeLeft;
+                if (mgTimeLeft <= 0) {
+                    clearInterval(mgTimer);
+                    endMinigame();
+                }
+            }, 1000);
+        }
+
+        function updateMinigameUI() {
+            document.getElementById('minigame-timer').innerText = mgTimeLeft;
+            document.getElementById('mgLevelIndicator').innerText = `Nivell ${mgLevel} | Encerts: ${mgScore}`;
+        }
+        
+        function generateMinigameFunc() {
+            document.getElementById('mgDomainInput').value = '';
+            document.getElementById('mgDomainInput').focus();
+
+            if (mgScore >= 12) mgLevel = 4;
+            else if (mgScore >= 7) mgLevel = 3;
+            else if (mgScore >= 3) mgLevel = 2;
+            else mgLevel = 1;
+
+            let key = "";
+            let htmlStr = "";
+            let exclusions = [];
+
+            let attempts = 0;
+            do {
+                attempts++;
+                exclusions = [];
+
+                if (mgLevel === 1) {
+                    let a = Math.floor(Math.random() * 9) + 1;
+                    let b = (Math.floor(Math.random() * 14) - 7);
+                    if (b === 0) b = 3;
+                    exclusions = [b];
+                    let signStr = b < 0 ? `+ ${Math.abs(b)}` : `- ${b}`;
+                    key = `mg1_${a}_${b}`;
+                    htmlStr = `<i>f(x) = </i><div class="math-frac"><span class="math-num">${a}</span><span class="math-den">x ${signStr}</span></div>`;
+                } else if (mgLevel === 2) {
+                    let b = Math.floor(Math.random() * 6) + 1;
+                    let top = Math.floor(Math.random() * 5) + 1;
+                    exclusions = [-b, b].sort((m,n)=>m-n);
+                    key = `mg2_${top}_${b}`;
+                    htmlStr = `<i>f(x) = </i><div class="math-frac"><span class="math-num">${top === 1 ? '1' : top + 'x'}</span><span class="math-den">x<sup>2</sup> - ${b*b}</span></div>`;
+                } else if (mgLevel === 3) {
+                    let a = Math.floor(Math.random() * 5) + 1;
+                    let b = Math.floor(Math.random() * 5) + 1;
+                    if (a === b) b += 2;
+                    exclusions = [-a, b].sort((m,n)=>m-n);
+                    key = `mg3_${a}_${b}`;
+                    htmlStr = `<i>f(x) = </i><div class="math-frac"><span class="math-num">x<sup>2</sup> + 1</span><span class="math-den">(x + ${a})(x - ${b})</span></div>`;
+                } else {
+                    let k = Math.floor(Math.random() * 4) + 1;
+                    exclusions = [-k, 0, k].sort((m,n)=>m-n);
+                    key = `mg4_${k}`;
+                    htmlStr = `<i>f(x) = </i><div class="math-frac"><span class="math-num">2x</span><span class="math-den">x<sup>3</sup> - ${k*k}x</span></div>`;
+                }
+
+            } while (generatedMinigameHistory.has(key) && attempts < 50);
+
+            generatedMinigameHistory.add(key);
+            mgCurrentExclusions = exclusions;
+            document.getElementById('mgFuncDisplay').innerHTML = htmlStr;
+            updateMinigameUI();
+        }
+        
+        function checkMinigameAnswer() {
+            if (mgTimeLeft <= 0) return;
+            
+            const input = document.getElementById('mgDomainInput').value;
+            const nums = extractNumbers(input);
+            
+            let domMatch = mgCurrentExclusions.every(e => nums.includes(e));
+            let domCorrect = domMatch && nums.length === mgCurrentExclusions.length;
+            
+            if (domCorrect) {
+                mgScore++;
+                let bonusTime = 10;
+                mgTimeLeft += bonusTime;
+                appState.coins += 15;
+                appState.xp += 20;
+                
+                document.getElementById('mgFeedback').innerText = `¡Correcte! +${bonusTime}s extra ⏱️, +15🪙 i +20 XP`;
+                document.getElementById('mgFeedback').style.color = "var(--success)";
+                
+                if (mgScore > (appState.minigameRecord || 0)) {
+                    appState.minigameRecord = mgScore;
+                }
+
+                saveState();
+                generateMinigameFunc();
+            } else {
+                document.getElementById('mgFeedback').innerText = "Incorrecte, torna-ho a intentar.";
+                document.getElementById('mgFeedback').style.color = "var(--danger)";
+            }
+        }
+        
+        function endMinigame() {
+            document.getElementById('minigame-area').style.display = 'none';
+            document.getElementById('mgLevelIndicator').style.display = 'none';
+            document.getElementById('btnStartMg').style.display = 'block';
+            document.getElementById('btnStartMg').innerHTML = "<i class='fa-solid fa-play'></i> Tornar a Jugar";
+            
+            alert(`S'ha acabat el temps! Has aconseguit ${mgScore} encerts i sumat monedes al teu perfil.`);
+            updateUIStats();
+        }
+
+        // --- LÒGICA MATEMÀTICA I DIBUIX DEL CANVAS (AMB VERD INTRACTABLE PROTEGIT) ---
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        const VIEW_SIZE = 10;
+        let showRealFunction = false;
+
+        let currentFunc = {
+            html: '', eval: null, domainExclusions: [], yInt: null, xInts: [], positiveIntervals: [], limits: []
+        };
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            width = canvas.width;
+            height = canvas.height;
+            updateGraph();
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+
+        function mapX(x) { return (x + VIEW_SIZE) * (width / (VIEW_SIZE * 2)); }
+        function mapY(y) { return (-y + VIEW_SIZE) * (height / (VIEW_SIZE * 2)); }
+
+        function generateNewFunction() {
+            let fHtml = '', fEval = null, ex = [], yInt = null, xInts = [];
+            let key = "";
+            let attempts = 0;
+
+            do {
+                attempts++;
+                let type = Math.floor(Math.random() * 6) + 1;
+
+                if (type === 1) { 
+                    let a = Math.floor(Math.random() * 4) + 1;
+                    let b = Math.floor(Math.random() * 9) - 4;
+                    if (b === 0) b = 2;
+                    if (Math.abs(b) === a) b += 1;
+
+                    ex = [b];
+                    xInts = [-a, a].sort((m,n)=>m-n);
+                    yInt = (-a*a)/(-b);
+                    fHtml = `<i>f(x) = </i><div class="math-frac"><span class="math-num">x<sup>2</sup> - ${a*a}</span><span class="math-den">x ${b < 0 ? '+ '+Math.abs(b) : '- '+b}</span></div>`;
+                    fEval = (x) => (x*x - a*a) / (x - b);
+                    key = `T1_${a}_${b}`;
+                } 
+                else if (type === 2) { 
+                    let a = Math.floor(Math.random() * 3) + 1;
+                    ex = [0];
+                    xInts = [a];
+                    yInt = null;
+                    fHtml = `<i>f(x) = </i><div class="math-frac"><span class="math-num">x<sup>3</sup> - ${a*a*a}</span><span class="math-den">x</span></div>`;
+                    fEval = (x) => (x*x*x - a*a*a) / x;
+                    key = `T2_${a}`;
+                }
+                else if (type === 3) { 
+                    let a = Math.floor(Math.random() * 3) + 2;
+                    ex = [-a, a];
+                    xInts = [];
+                    yInt = 1 / (-a*a);
+                    fHtml = `<i>f(x) = </i><div class="math-frac"><span class="math-num">ℯ<sup>x</sup></span><span class="math-den">x<sup>2</sup> - ${a*a}</span></div>`;
+                    fEval = (x) => Math.exp(x) / (x*x - a*a);
+                    key = `T3_${a}`;
+                }
+                else if (type === 4) { 
+                    let a = Math.floor(Math.random() * 4) + 1;
+                    ex = [];
+                    xInts = [-a, a];
+                    yInt = -a*a;
+                    fHtml = `<i>f(x) = </i><div class="math-frac"><span class="math-num">x<sup>2</sup> - ${a*a}</span><span class="math-den">ℯ<sup>x</sup></span></div>`;
+                    fEval = (x) => (x*x - a*a) / Math.exp(x);
+                    key = `T4_${a}`;
+                }
+                else if (type === 5) { 
+                    let a = Math.floor(Math.random() * 2) + 1;
+                    let b = a + Math.floor(Math.random() * 2) + 1;
+                    ex = [-b, b];
+                    xInts = [-a, a];
+                    yInt = (-a*a) / (-b*b);
+                    fHtml = `<i>f(x) = </i><div class="math-frac"><span class="math-num">x<sup>2</sup> - ${a*a}</span><span class="math-den">x<sup>2</sup> - ${b*b}</span></div>`;
+                    fEval = (x) => (x*x - a*a) / (x*x - b*b);
+                    key = `T5_${a}_${b}`;
+                }
+                else { 
+                    let k = Math.floor(Math.random() * 5) + 2;
+                    ex = [0];
+                    xInts = [];
+                    yInt = null;
+                    fHtml = `<i>f(x) = </i><div class="math-frac"><span class="math-num">${k}</span><span class="math-den">x<sup>2</sup></span></div>`;
+                    fEval = (x) => k / (x*x);
+                    key = `T6_${k}`;
+                }
+
+            } while(generatedPracticeHistory.has(key) && attempts < 50);
+
+            generatedPracticeHistory.add(key);
+
+            let critPoints = [...new Set([...xInts, ...ex])].sort((m,n)=>m-n);
+            let intervals = [];
+            let bounds = [-Infinity, ...critPoints, Infinity];
+
+            for (let i = 0; i < bounds.length - 1; i++) {
+                let start = bounds[i], end = bounds[i+1];
+                let testP = (start === -Infinity) ? end - 1 : ((end === Infinity) ? start + 1 : (start + end)/2);
+                if (fEval(testP) > 0) intervals.push([start, end]);
+            }
+
+            let limits = [];
+            limits.push({ label: 'x → -∞', targetX: -Infinity, dir: null });
+            ex.forEach(e => {
+                limits.push({ label: `x → ${e}⁻`, targetX: e, dir: '-' });
+                limits.push({ label: `x → ${e}⁺`, targetX: e, dir: '+' });
+            });
+            limits.push({ label: 'x → +∞', targetX: Infinity, dir: null });
+
+            limits.forEach(l => {
+                let delta = l.targetX === -Infinity ? -1e5 : (l.targetX === Infinity ? 1e5 : (l.dir === '-' ? -1e-4 : 1e-4));
+                let v = fEval(l.targetX !== Infinity && l.targetX !== -Infinity ? l.targetX + delta : delta);
+                l.expected = Math.abs(v) > 50 ? (v > 0 ? '+inf' : '-inf') : parseFloat(v.toFixed(2)).toString();
+            });
+
+            currentFunc = { html: fHtml, eval: fEval, domainExclusions: ex, yInt: yInt, xInts: xInts, positiveIntervals: intervals, limits: limits };
+
+            document.getElementById('funcDisplay').innerHTML = fHtml;
+            renderLimitsInputs(limits);
+
+            resetUI();
+            updateGraph();
+        }
+
+        function resetUI() {
+            document.querySelectorAll('input[type="text"]:not(#mgDomainInput)').forEach(i => {
+                i.value = '';
+                i.disabled = false;
+                i.style.borderColor = 'var(--border)';
+                i.style.backgroundColor = 'var(--bg-color)';
+            });
+            document.querySelectorAll('.status-icon').forEach(i => i.style.display = 'none');
+            document.querySelectorAll('.real-answer').forEach(el => el.style.display = 'none');
+            document.getElementById('resultsPanel').style.display = 'none';
+            document.getElementById('btnSubmit').style.display = 'flex';
+            document.getElementById('wrap-sign').style.borderColor = 'var(--border)';
+            document.getElementById('wrap-sign').style.backgroundColor = 'var(--bg-color)';
+            showRealFunction = false;
+        }
+
+        function renderLimitsInputs(limits) {
+            const container = document.getElementById('limitsContainer');
+            container.innerHTML = '';
+            limits.forEach((lim, idx) => {
+                container.innerHTML += `
+                    <div class="limit-item" id="wrap-lim-${idx}">
+                        <label>lim (${lim.label}) =</label>
+                        <input type="text" id="lim-${idx}" placeholder="Ex: +inf, -inf, 0" oninput="updateGraph()">
+                        <i id="icon-lim-${idx}" class="fa-solid status-icon"></i>
+                    </div>
+                `;
+            });
+        }
+
+        function extractNumbers(str) {
+            if (!str) return [];
+            const matches = str.match(/-?\d+(\.\d+)?/g);
+            return matches ? matches.map(Number) : [];
+        }
+
+        function parseUserIntervals(str) {
+            if (!str) return [];
+            let s = str.toLowerCase()
+                       .replace(/∞|infinity|infinit|infinito/g, 'inf')
+                       .replace(/([+-])\s+inf/g, '$1inf')
+                       .replace(/([+-])\s+(\d)/g, '$1$2');
+            
+            const parts = s.split(/u|∪|;/);
+            const intervals = [];
+            
+            parts.forEach(p => {
+                const tokens = p.match(/-?inf|\+?inf|-?\d+(?:\.\d+)?/g);
+                if (tokens && tokens.length >= 2) {
+                    let parseToken = (t) => {
+                        if (t.includes('-inf')) return -Infinity;
+                        if (t.includes('inf')) return Infinity;
+                        return parseFloat(t);
+                    };
+                    let start = parseToken(tokens[0]);
+                    let end = parseToken(tokens[1]);
+                    if (!isNaN(start) && !isNaN(end)) {
+                        intervals.push([Math.min(start, end), Math.max(start, end)]);
+                    }
+                }
+            });
+            return intervals;
+        }
+
+        function parseLimitValue(str) {
+            if (!str) return null;
+            let s = str.toLowerCase().trim()
+                       .replace(/∞|infinity|infinit|infinito/g, 'inf')
+                       .replace(/\s+/g, '');
+            if (s.includes('-inf')) return -Infinity;
+            if (s.includes('inf')) return Infinity;
+            let num = parseFloat(s);
+            if (!isNaN(num)) return num;
+            return null;
+        }
+
+        function drawGrid() {
+            ctx.clearRect(0, 0, width, height);
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 1;
+            for (let i = -VIEW_SIZE; i <= VIEW_SIZE; i++) {
+                ctx.beginPath(); ctx.moveTo(mapX(i), 0); ctx.lineTo(mapX(i), height); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, mapY(i)); ctx.lineTo(width, mapY(i)); ctx.stroke();
+            }
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(mapX(0), 0); ctx.lineTo(mapX(0), height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, mapY(0)); ctx.lineTo(width, mapY(0)); ctx.stroke();
+        }
+
+        function drawLine(fromX, fromY, toX, toY) {
+            ctx.strokeStyle = '#f59e0b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(fromX, fromY);
+            ctx.lineTo(toX, toY);
+            ctx.stroke();
+        }
+
+        function updateGraph() {
+            drawGrid();
+
+            // DIBUIX DE LÍNIES VERTICALS DE DOMINI - VERD PROTEGIT FINS A LA MORT (#10b981)
+            const domainNums = extractNumbers(document.getElementById('in-domain').value);
+            domainNums.forEach(num => {
+                if (Math.abs(num) <= VIEW_SIZE) {
+                    ctx.strokeStyle = 'rgba(16, 185, 129, 0.85)'; // VERD PROTEGIT INMUTABLE
+                    ctx.setLineDash([5, 5]); ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(mapX(num), 0); ctx.lineTo(mapX(num), height); ctx.stroke();
+                    ctx.setLineDash([]);
+                }
+            });
+
+            // DIBUIX DE L'ÀREA DEL SIGNE - VERD PROTEGIT FINS A LA MORT (#10b981)
+            const signRaw = document.getElementById('in-sign').value.trim();
+            if (signRaw !== '') {
+                const userPosIntervals = parseUserIntervals(signRaw);
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.25)'; // VERD PROTEGIT INMUTABLE
+                
+                for (let px = 0; px < width; px += 2) {
+                    let x = (px / (width / (VIEW_SIZE * 2))) - VIEW_SIZE;
+                    let isPositive = userPosIntervals.some(inv => x >= inv[0] && x <= inv[1]);
+                    
+                    if (isPositive) {
+                        let yTop = mapY(0);
+                        let yBottom = mapY(-VIEW_SIZE);
+                        ctx.fillRect(px, yTop, 2, yBottom - yTop);
+                    } else {
+                        let yTop = mapY(VIEW_SIZE);
+                        let yBottom = mapY(0);
+                        ctx.fillRect(px, yTop, 2, yBottom - yTop);
+                    }
+                }
+            }
+
+            ctx.fillStyle = '#3b82f6';
+            const yintNums = extractNumbers(document.getElementById('in-yint').value);
+            if (yintNums.length >= 2) {
+                ctx.beginPath(); ctx.arc(mapX(yintNums[0]), mapY(yintNums[1]), 6, 0, Math.PI * 2); ctx.fill();
+            }
+            const xintNums = extractNumbers(document.getElementById('in-xint').value);
+            for (let i = 0; i < xintNums.length; i += 2) {
+                if (xintNums[i+1] !== undefined) {
+                    ctx.beginPath(); ctx.arc(mapX(xintNums[i]), mapY(xintNums[i+1]), 6, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+
+            currentFunc.limits.forEach((lim, idx) => {
+                const inputEl = document.getElementById(`lim-${idx}`);
+                if (!inputEl) return;
+                const val = parseLimitValue(inputEl.value);
+                if (val === null) return;
+
+                if (lim.targetX === -Infinity) {
+                    if (val === Infinity) drawLine(mapX(-6), mapY(6), mapX(-9.5), mapY(9.5));
+                    else if (val === -Infinity) drawLine(mapX(-6), mapY(-6), mapX(-9.5), mapY(-9.5));
+                    else drawLine(mapX(-6), mapY(val), mapX(-9.5), mapY(val));
+                } else if (lim.targetX === Infinity) {
+                    if (val === Infinity) drawLine(mapX(6), mapY(6), mapX(9.5), mapY(9.5));
+                    else if (val === -Infinity) drawLine(mapX(6), mapY(-6), mapX(9.5), mapY(-9.5));
+                    else drawLine(mapX(6), mapY(val), mapX(9.5), mapY(val));
+                } else {
+                    let c = lim.targetX;
+                    let xOffset = lim.dir === '-' ? -0.3 : 0.3;
+                    let xPos = c + xOffset;
+                    if (val === Infinity) drawLine(mapX(xPos), mapY(5), mapX(xPos), mapY(9.5));
+                    else if (val === -Infinity) drawLine(mapX(xPos), mapY(-5), mapX(xPos), mapY(-9.5));
+                    else {
+                        let xStart = lim.dir === '-' ? c - 2 : c + 2;
+                        drawLine(mapX(xStart), mapY(val), mapX(xPos), mapY(val));
+                    }
+                }
+            });
+
+            if (showRealFunction) drawActualFunctionCurve();
+        }
+
+        function drawActualFunctionCurve() {
+            ctx.strokeStyle = '#f43f5e';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            let prevY = null;
+            for (let px = 0; px <= width; px += 2) {
+                let x = (px / (width / (VIEW_SIZE * 2))) - VIEW_SIZE;
+                let isExcluded = currentFunc.domainExclusions.some(e => Math.abs(x - e) < 0.08);
+                if (isExcluded) { prevY = null; continue; }
+
+                let y = currentFunc.eval(x);
+                let py = mapY(y);
+
+                if (py > -100 && py < height + 100) {
+                    if (prevY === null) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                    prevY = py;
+                } else { prevY = null; }
+            }
+            ctx.stroke();
+        }
+
+        function setStatus(id, isCorrect) {
+            const el = document.getElementById(id);
+            const iconId = id.replace('in-', 'icon-').replace('wrap-', 'icon-');
+            const icon = document.getElementById(iconId);
+            
+            if(el) {
+                el.style.borderColor = isCorrect ? 'var(--success)' : 'var(--danger)';
+                el.style.backgroundColor = isCorrect ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
+            }
+            if(icon) {
+                icon.className = isCorrect ? 'fa-solid fa-check status-icon' : 'fa-solid fa-xmark status-icon';
+                icon.style.color = isCorrect ? 'var(--success)' : 'var(--danger)';
+                icon.style.display = 'block';
+            }
+        }
+
+        function evaluateAnswers() {
+            let correctPoints = 0;
+            let totalPoints = 4 + currentFunc.limits.length;
+            document.querySelectorAll('input[type="text"]:not(#mgDomainInput)').forEach(i => i.disabled = true);
+            document.getElementById('btnSubmit').style.display = 'none';
+
+            // Domini
+            const domIn = extractNumbers(document.getElementById('in-domain').value);
+            const domAns = document.getElementById('ans-domain');
+            let domMatch = currentFunc.domainExclusions.every(e => domIn.includes(e));
+            let domCorrect = domMatch && domIn.length === currentFunc.domainExclusions.length;
+            if (domCorrect) correctPoints++;
+            setStatus('in-domain', domCorrect);
+            domAns.innerHTML = `Correcte: R - {${currentFunc.domainExclusions.join(', ')}}`;
+            domAns.style.display = 'block';
+
+            // Y-Int
+            const yIn = extractNumbers(document.getElementById('in-yint').value);
+            const yAns = document.getElementById('ans-yint');
+            let yCorrect = false;
+            if (currentFunc.yInt === null) {
+                if (document.getElementById('in-yint').value.toLowerCase().includes('no')) yCorrect = true;
+                yAns.innerHTML = `Correcte: No en té`;
+            } else {
+                let realY = parseFloat(currentFunc.yInt.toFixed(2));
+                if (yIn.length >= 2 && yIn[0] === 0 && Math.abs(yIn[1] - realY) < 0.2) yCorrect = true;
+                yAns.innerHTML = `Correcte: (0, ${realY})`;
+            }
+            if(yCorrect) correctPoints++;
+            setStatus('in-yint', yCorrect);
+            yAns.style.display = 'block';
+
+            // X-Int
+            const xIn = extractNumbers(document.getElementById('in-xint').value);
+            const xAns = document.getElementById('ans-xint');
+            let xCorrect = false;
+            if (currentFunc.xInts.length === 0) {
+                if (document.getElementById('in-xint').value.toLowerCase().includes('no')) xCorrect = true;
+                xAns.innerHTML = `Correcte: No en té`;
+            } else {
+                let matched = 0;
+                currentFunc.xInts.forEach(xVal => { if (xIn.some(num => Math.abs(num - xVal) < 0.2)) matched++; });
+                if (matched === currentFunc.xInts.length) xCorrect = true;
+                xAns.innerHTML = `Correcte: ` + currentFunc.xInts.map(x => `(${parseFloat(x.toFixed(2))}, 0)`).join(', ');
+            }
+            if(xCorrect) correctPoints++;
+            setStatus('in-xint', xCorrect);
+            xAns.style.display = 'block';
+
+            // Signe
+            const signAns = document.getElementById('ans-sign');
+            const userInv = parseUserIntervals(document.getElementById('in-sign').value);
+            
+            let signCorrect = true;
+            if (userInv.length === 0 && currentFunc.positiveIntervals.length > 0) {
+                signCorrect = false;
+            } else {
+                for (let testX = -9.5; testX <= 9.5; testX += 1.0) {
+                    if (currentFunc.domainExclusions.some(e => Math.abs(testX - e) < 0.2)) continue;
+                    let userPos = userInv.some(inv => testX >= inv[0] && testX <= inv[1]);
+                    let realPos = currentFunc.eval(testX) > 0;
+                    if (userPos !== realPos) { signCorrect = false; break; }
+                }
+            }
+
+            if (signCorrect) correctPoints++;
+            setStatus('wrap-sign', signCorrect);
+            let strInv = currentFunc.positiveIntervals.map(inv => {
+                let s = inv[0] === -Infinity ? '-inf' : inv[0];
+                let e = inv[1] === Infinity ? '+inf' : inv[1];
+                return `(${s}, ${e})`;
+            }).join(' U ');
+            signAns.innerHTML = `Correcte: ${strInv || 'Sempre negativa'}`;
+            signAns.style.display = 'block';
+
+            // Límits
+            const limAns = document.getElementById('ans-limits');
+            currentFunc.limits.forEach((lim, idx) => {
+                let userVal = parseLimitValue(document.getElementById(`lim-${idx}`).value);
+                let exp = lim.expected;
+                let lCorrect = false;
+
+                if (exp === '+inf' && userVal === Infinity) lCorrect = true;
+                else if (exp === '-inf' && userVal === -Infinity) lCorrect = true;
+                else if (typeof userVal === 'number' && Math.abs(userVal - parseFloat(exp)) < 0.2) lCorrect = true;
+
+                if (lCorrect) correctPoints++;
+                setStatus(`wrap-lim-${idx}`, lCorrect);
+            });
+            limAns.innerHTML = `Correctes: ` + currentFunc.limits.map(l => `${l.label} = ${l.expected}`).join(' | ');
+            limAns.style.display = 'block';
+
+            // Monedes i Experiència (XP)
+            let percentage = Math.round((correctPoints / totalPoints) * 100);
+            let coinsEarned = Math.round(percentage);
+            let xpEarned = Math.round(percentage * 0.5) + 15;
+            
+            let streakBonus = appState.streak * 5; 
+            coinsEarned += streakBonus;
+
+            appState.coins += coinsEarned;
+            appState.xp += xpEarned;
+
+            appState.history.unshift({
+                funcText: document.getElementById('funcDisplay').innerText,
+                score: percentage,
+                coins: coinsEarned,
+                xp: xpEarned,
+                date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
+            saveState();
+            renderHistory();
+
+            const scorePanel = document.getElementById('resultsPanel');
+            const scoreText = document.getElementById('scoreText');
+            const rewardText = document.getElementById('rewardText');
+
+            scoreText.innerText = `${percentage}% d'encert`;
+            scoreText.style.color = percentage >= 80 ? 'var(--success)' : (percentage >= 50 ? 'var(--warning)' : 'var(--danger)');
+            rewardText.innerText = `+${coinsEarned} 🪙 Monedes i +${xpEarned} XP`;
+            
+            scorePanel.style.display = 'block';
+        }
+
+        function drawRealFunction() {
+            showRealFunction = true;
+            updateGraph();
+        }
+
+        // Inicialització
+        window.onload = () => {
+            loadState();
+            resizeCanvas();
+            generateNewFunction();
+        };
+    </script>
+</body>
+</html>
